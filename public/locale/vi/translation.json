@@ -23,5 +23,8 @@
     "information.add": "Thêm mới",
     "PROCESSING": "Đang xử lý",
     "CLOSED_NOT_FINISHED": "Không hoàn thành",
-    "CLOSED_FINISHED": "Hoàn thành"
+    "CLOSED_FINISHED": "Hoàn thành",
+    "login": "Đăng nhập",
+    "username": "Tên người dùng",
+    "password": "Mật khẩu"
 }
