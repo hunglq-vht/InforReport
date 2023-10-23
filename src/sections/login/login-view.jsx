@@ -28,15 +28,21 @@ export default function LoginView() {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [userName, setUserName] = useState('');
 
   const handleClick = () => {
-    router.push('/dashboard');
+    router.push('/user');
   };
 
   const renderForm = (
     <>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
+        <TextField
+          name="email"
+          label="Email address"
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+        />
 
         <TextField
           name="password"
