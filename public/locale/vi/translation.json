@@ -26,5 +26,9 @@
     "CLOSED_FINISHED": "Hoàn thành",
     "login": "Đăng nhập",
     "username": "Tên người dùng",
-    "password": "Mật khẩu"
+    "password": "Mật khẩu",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "information.fromTime": "Bắt đầu",
+    "information.toTime": "Kết thúc"
 }

@@ -13,23 +13,20 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { axiosInstance } from 'src/utils/axiosInstance';
-import { INFOR_TYPE_LIST } from 'src/utils/informationType';
+import { INFOR_STATUS_LIST, INFOR_TYPE_LIST } from 'src/utils/informationType';
 
-export const InformationDialog = (props) => {
-  const { setOpenCreate, isCreate, setIsRefetch } = props;
+export const InformationEditDialog = (props) => {
+  const { setOpenUpdate, isUp, setIsRefetch, information } = props;
   const { t } = useTranslation();
 
-  const [currentInfo, setCurrentInfo] = useState({
-    note: '',
-    source: '',
-    department: '',
-    reporter: '',
-    type: '',
-    status: 'PROCESSING',
-  });
+  const [currentInfo, setCurrentInfo] = useState(information);
+
+  useEffect(() => {
+    setCurrentInfo(information);
+  }, [information]);
 
   const onChangeInput = (e) => {
     const { name, value } = e.target;
@@ -40,21 +37,22 @@ export const InformationDialog = (props) => {
   };
 
   const onClickSubmit = () => {
-    axiosInstance.post('/information', { ...currentInfo }).then((res) => {
-      console.log(res);
-      setOpenCreate(false);
-      setIsRefetch(true);
-    });
+    console.log(currentInfo);
+    // axiosInstance.put('/information', { ...currentInfo }).then((res) => {
+    //   console.log(res);
+    //   setOpenUpdate(false);
+    //   setIsRefetch(true);
+    // });
   };
 
   const onClickCancel = () => {
-    setOpenCreate(false);
+    setOpenUpdate(false);
   };
 
   return (
     <>
-      <Dialog open={true}>
-        <DialogTitle>{t('information.create')}</DialogTitle>
+      <Dialog open={true} maxWidth="sm" fullWidth>
+        <DialogTitle>{t('information.edit')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ alignItems: 'center', marginBottom: 2 }}>
             <Grid item xs={6}>
@@ -122,6 +120,23 @@ export const InformationDialog = (props) => {
                   return (
                     <MenuItem key={inforType} value={inforType}>
                       {t(inforType)}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2} sx={{ alignItems: 'center', marginBottom: 2 }}>
+            <Grid item xs={6}>
+              <Typography>{t('information.status')}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Select fullWidth value={currentInfo.status} name="status" onChange={onChangeInput}>
+                {INFOR_STATUS_LIST.map((inforStatus) => {
+                  return (
+                    <MenuItem key={inforStatus} value={inforStatus}>
+                      {t(inforStatus)}
                     </MenuItem>
                   );
                 })}
