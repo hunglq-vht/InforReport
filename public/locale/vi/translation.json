@@ -54,5 +54,8 @@
     "user.add": "Thêm mới tài khoản",
     "user.create": "Thêm mới tài khoản",
     "user.update": "Cập nhật tài khoản",
-    "user.update.success": "Cập nhật người dùng thành công"
+    "user.update.success": "Cập nhật người dùng thành công",
+    "user.delete.success": "Xóa người dùng thành công",
+    "account_management": "Danh sách tài khoản",
+    "logout": "Đăng xuất"
 }

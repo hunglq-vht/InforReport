@@ -46,7 +46,7 @@ export default function UserManagementPage() {
 
   const [userList, setUserList] = useState([]);
   const [isRefetch, setIsRefetch] = useState(true);
-  const [openElement, setOpenElement] = useState(null);
+  const [openElement, setOpenElement] = useState([]);
   const [isOpenCreate, setIsOpenCreate] = useState(false);
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [selectedUser, setSelectedUser] = useState({});
@@ -56,28 +56,76 @@ export default function UserManagementPage() {
   useEffect(() => {
     if (!isRefetch) return;
     axiosInstance.get('/users').then((res) => {
-      console.log(res.data);
       setUserList(res.data);
+      setOpenElement(Array(res.data.length).fill(null));
       toast.success(t('user.get.success'));
     });
     setIsRefetch(false);
   }, [isRefetch]);
 
   const handleClickEdit = (userInfo) => {
-    console.log('userInfo', userInfo);
-    // setSelectedUser(userInfo);
-    // setIsOpenUpdate(true);
-    // setOpenElement(null);
+    setSelectedUser(userInfo);
+    setIsOpenUpdate(true);
+    setOpenElement(Array(userList.length).fill(null));
   };
 
-  const handleClickDelete = (username) => {};
+  const handleClickDelete = (userId) => {
+    setOpenElement(Array(userList.length).fill(null));
+    setUserDeleteId(userId);
+    setIsConfirmDelete(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsConfirmDelete(false);
+    setUserDeleteId(null);
+  };
 
   const handleClickCreate = () => {
     setIsOpenCreate(true);
   };
 
+  const onClosePopOver = (index) => {
+    const newOpenElement = [...openElement];
+    newOpenElement[index] = null;
+    setOpenElement(newOpenElement);
+  };
+
+  const onClickOptions = (index, e) => {
+    const newOpenElement = [...openElement];
+    newOpenElement[index] = e.currentTarget;
+    setOpenElement(newOpenElement);
+  };
+
+  const onConfirmDelete = () => {
+    axiosInstance
+      .delete(`/user/${userDeleteId}`)
+      .then(() => {
+        toast.success(t('user.delete.success'));
+        handleCloseDeleteDialog();
+        setIsRefetch(true);
+      })
+      .catch(() => {
+        toast.error(t('information.delete.failed'));
+      });
+  };
+
   return (
     <>
+      <Dialog maxWidth="xs" fullWidth open={isConfirmDelete} onClose={handleCloseDeleteDialog}>
+        <DialogTitle sx={{ textAlign: 'center' }}>{t('confirm.delete.dialog')}</DialogTitle>
+        <DialogContentText sx={{ textAlign: 'center' }}>
+          {t('confirm.delete.user')}
+        </DialogContentText>
+        <DialogActions>
+          <Button type="reset" onClick={handleCloseDeleteDialog}>
+            {t('cancel').toUpperCase()}
+          </Button>
+          <Button type="submit" color="primary" onClick={onConfirmDelete}>
+            {t('confirm').toUpperCase()}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {isOpenCreate && (
         <UserDialog
           isOpenCreate={isOpenCreate}
@@ -85,14 +133,14 @@ export default function UserManagementPage() {
           setIsRefetch={setIsRefetch}
         />
       )}
-      {/* {isOpenUpdate && (
+      {isOpenUpdate && (
         <UserEditDialog
           userInfo={selectedUser}
           isOpenUpdate={isOpenUpdate}
           setOpenUpdate={setIsOpenUpdate}
           setIsRefetch={setIsRefetch}
         />
-      )} */}
+      )}
       <Container>
         <Stack direction="row" alignItems={'center'} justifyContent={'space-between'} mb={5}>
           <Typography variant="h4">{t('user_management').toUpperCase()}</Typography>
@@ -134,7 +182,7 @@ export default function UserManagementPage() {
                       <TableCell>{currentUser.department}</TableCell>
                       <TableCell>{currentUser.address}</TableCell>
                       <TableCell align="right">
-                        <IconButton onClick={(e) => setOpenElement(e.currentTarget)}>
+                        <IconButton onClick={(e) => onClickOptions(index, e)}>
                           <Iconify icon="eva:more-vertical-fill" />
                         </IconButton>
                       </TableCell>
@@ -142,9 +190,9 @@ export default function UserManagementPage() {
                     <Popover
                       key={`popover_user_${index}`}
                       id={`popover_user_id_${index}`}
-                      open={!!openElement}
-                      anchorEl={openElement}
-                      onClose={() => setOpenElement(null)}
+                      open={!!openElement[index]}
+                      anchorEl={openElement[index]}
+                      onClose={() => onClosePopOver(index)}
                       anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
                       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                       sx={{ width: 140 }}
@@ -152,14 +200,14 @@ export default function UserManagementPage() {
                       <MenuItem
                         key={`menu_item_user_${index}`}
                         id={`menu_item_user_id_${index}`}
-                        onClick={(e) => handleClickEdit(currentUser.id)}
+                        onClick={(e) => handleClickEdit(currentUser)}
                       >
                         <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
                         {t('edit')}
                       </MenuItem>
 
                       <MenuItem
-                        onClick={(e) => handleClickDelete(currentUser)}
+                        onClick={(e) => handleClickDelete(currentUser.id)}
                         sx={{ color: 'error.main' }}
                       >
                         <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />

@@ -49,7 +49,7 @@ export default function InformationPage() {
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [isRefetch, setIsRefetch] = useState(true);
   const [selectedInfo, setSelectedInfo] = useState({});
-  const [openElement, setOpenElement] = useState(null);
+  const [openElement, setOpenElement] = useState([]);
   const [isConfirmDelete, setIsConfirmDelete] = useState(false);
   const [inforDeleteId, setInforDeleteId] = useState(null);
   const [filterValue, setFilterValue] = useState({
@@ -63,6 +63,7 @@ export default function InformationPage() {
     if (isRefetch)
       axiosInstance.get('/information').then((res) => {
         setInformationList(res.data);
+        setOpenElement(Array(res.data.length).fill(null));
         setIsRefetch(false);
       });
   }, [isRefetch]);
@@ -105,13 +106,13 @@ export default function InformationPage() {
 
   const handleClickEdit = (inforId) => {
     setIsOpenUpdate(true);
-    setOpenElement(null);
+    setOpenElement(Array(informationList.length).fill(null));
     const selectedInformation = informationList.find((info) => info.id === inforId);
     if (selectedInformation) setSelectedInfo(selectedInformation);
   };
 
   const handleClickDelete = (inforId) => {
-    setOpenElement(null);
+    setOpenElement(Array(informationList.length).fill(null));
     setInforDeleteId(inforId);
     setIsConfirmDelete(true);
   };
@@ -132,6 +133,18 @@ export default function InformationPage() {
       .catch(() => {
         toast.error(t('information.delete.failed'));
       });
+  };
+
+  const onClosePopOver = (index) => {
+    const newOpenElement = [...openElement];
+    newOpenElement[index] = null;
+    setOpenElement(newOpenElement);
+  };
+
+  const onClickOptions = (index, e) => {
+    const newOpenElement = [...openElement];
+    newOpenElement[index] = e.currentTarget;
+    setOpenElement(newOpenElement);
   };
 
   return (
@@ -280,16 +293,16 @@ export default function InformationPage() {
                           {moment(currentInformation.createdDate * 1000).format('DD/MM/YYYY HH:mm')}
                         </TableCell>
                         <TableCell align="right">
-                          <IconButton onClick={(e) => setOpenElement(e.currentTarget)}>
+                          <IconButton onClick={(e) => onClickOptions(index, e)}>
                             <Iconify icon="eva:more-vertical-fill" />
                           </IconButton>
                         </TableCell>
                       </TableRow>
                       <Popover
                         key={`popover_info_${index}`}
-                        open={!!openElement}
-                        anchorEl={openElement}
-                        onClose={() => setOpenElement(null)}
+                        open={!!openElement[index]}
+                        anchorEl={openElement[index]}
+                        onClose={onClosePopOver}
                         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
                         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                         sx={{ width: 140 }}

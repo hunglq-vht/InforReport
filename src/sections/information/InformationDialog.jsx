@@ -63,6 +63,7 @@ export const InformationDialog = (props) => {
             <Grid item xs={6}>
               <OutlinedInput
                 fullWidth
+                sx={{ height: '40px' }}
                 name="note"
                 value={currentInfo.note}
                 onChange={onChangeInput}
@@ -77,6 +78,7 @@ export const InformationDialog = (props) => {
             <Grid item xs={6}>
               <OutlinedInput
                 fullWidth
+                sx={{ height: '40px' }}
                 name="source"
                 vallue={currentInfo.source}
                 onChange={onChangeInput}
@@ -91,6 +93,7 @@ export const InformationDialog = (props) => {
             <Grid item xs={6}>
               <OutlinedInput
                 fullWidth
+                sx={{ height: '40px' }}
                 name="reporter"
                 value={currentInfo.reporter}
                 onChange={onChangeInput}
@@ -105,6 +108,7 @@ export const InformationDialog = (props) => {
             <Grid item xs={6}>
               <OutlinedInput
                 fullWidth
+                sx={{ height: '40px' }}
                 name="department"
                 value={currentInfo.department}
                 onChange={onChangeInput}
@@ -117,7 +121,13 @@ export const InformationDialog = (props) => {
               <Typography>{t('information.type')}</Typography>
             </Grid>
             <Grid item xs={6}>
-              <Select fullWidth value={currentInfo.type} name="type" onChange={onChangeInput}>
+              <Select
+                sx={{ height: '40px' }}
+                fullWidth
+                value={currentInfo.type}
+                name="type"
+                onChange={onChangeInput}
+              >
                 {INFOR_TYPE_LIST.map((inforType) => {
                   return (
                     <MenuItem key={inforType} value={inforType}>
@@ -130,9 +140,9 @@ export const InformationDialog = (props) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClickCancel}>{t('cancel')}</Button>
+          <Button onClick={onClickCancel}>{t('cancel').toUpperCase()}</Button>
           <Button onClick={onClickSubmit} color="primary">
-            {t('submit')}
+            {t('submit').toUpperCase()}
           </Button>
         </DialogActions>
       </Dialog>

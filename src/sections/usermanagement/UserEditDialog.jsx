@@ -166,9 +166,9 @@ export const UserEditDialog = (props) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClickCancel}>{t('cancel')}</Button>
+          <Button onClick={onClickCancel}>{t('cancel').toUpperCase()}</Button>
           <Button onClick={onClickSubmit} color="primary">
-            {t('update')}
+            {t('update').toUpperCase()}
           </Button>
         </DialogActions>
       </Dialog>

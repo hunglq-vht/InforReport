@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -54,11 +54,20 @@ export default function LoginView() {
       });
   };
 
+  useEffect(() => {
+    document.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        handleClick();
+      }
+    });
+  }, [userName, password]);
+
   const renderForm = (
     <>
       <Stack spacing={3}>
         <TextField
           name="email"
+          // sx={{ backgroundColor: 'transparent' }}
           label={t('username')}
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
@@ -127,7 +136,9 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">{t('login')}</Typography>
+          <Typography variant="h4" mb={3}>
+            {t('login')}
+          </Typography>
 
           {renderForm}
         </Card>

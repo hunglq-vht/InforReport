@@ -14,7 +14,7 @@ const navConfig = [
   //   icon: icon('ic_analytics'),
   // },
   {
-    title: 'user',
+    title: i18n.t('account_management'),
     path: '/user',
     icon: icon('ic_user'),
   },
@@ -43,6 +43,11 @@ const navConfig = [
     path: '/information',
     icon: icon('ic_blog'),
   },
+  {
+    title: i18n.t('logout'), 
+    path: '/', 
+    icon: icon('ic_lock')
+  }
 ];
 
 export default navConfig;
