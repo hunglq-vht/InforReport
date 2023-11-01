@@ -101,6 +101,13 @@ const base = {
 
 // ----------------------------------------------------------------------
 
+export function darkPalette() {
+  return {
+    ...base,
+    mode: 'dark',
+  };
+}
+
 export function palette() {
   return {
     ...base,

@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
+import { toast } from 'react-toastify';
 
 import { useRouter } from 'src/routes/hooks';
 
@@ -20,6 +21,9 @@ import { bgGradient } from 'src/theme/css';
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 import { useTranslation } from 'react-i18next';
+import { axiosInstance } from 'src/utils/axiosInstance';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // ----------------------------------------------------------------------
 
@@ -30,10 +34,24 @@ export default function LoginView() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
   const { t } = useTranslation();
 
   const handleClick = () => {
-    router.push('/user');
+    axiosInstance
+      .post('/auth/login', {
+        username: userName,
+        password: password,
+      })
+      .then((res) => {
+        toast.success(t('login.success'));
+        console.log(res.data);
+        Cookies.set('accessToken', res.data.accessToken);
+        router.push('/user');
+      })
+      .catch(() => {
+        toast.error(t('login.failed'));
+      });
   };
 
   const renderForm = (
@@ -50,6 +68,7 @@ export default function LoginView() {
           name="password"
           label={t('password')}
           type={showPassword ? 'text' : 'password'}
+          onChange={(e) => setPassword(e.target.value)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">

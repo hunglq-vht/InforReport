@@ -15,11 +15,34 @@ import { customShadows } from './custom-shadows';
 export default function ThemeProvider({ children }) {
   const memoizedValue = useMemo(
     () => ({
-      palette: palette(),
+      // palette: palette(),
+      palette: {
+        mode: 'dark',
+      },
       typography,
-      shadows: shadows(),
+      // shadows: shadows(),
       customShadows: customShadows(),
       shape: { borderRadius: 8 },
+      components: {
+        MuiInputBase: {
+          styleOverrides: {
+            root: {
+              height: '40px',
+            },
+          },
+        },
+        MuiOutlinedInput: {
+          styleOverrides: {
+            root: {
+              fontSize: '0.875rem',
+              height: '40px',
+            },
+            input: {
+              padding: '2px 2px',
+            },
+          },
+        },
+      },
     }),
     []
   );

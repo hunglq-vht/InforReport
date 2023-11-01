@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { axiosInstance } from 'src/utils/axiosInstance';
 import { INFOR_STATUS_LIST, INFOR_TYPE_LIST } from 'src/utils/informationType';
 
@@ -37,12 +38,18 @@ export const InformationEditDialog = (props) => {
   };
 
   const onClickSubmit = () => {
-    console.log(currentInfo);
-    // axiosInstance.put('/information', { ...currentInfo }).then((res) => {
-    //   console.log(res);
-    //   setOpenUpdate(false);
-    //   setIsRefetch(true);
-    // });
+    // console.log(currentInfo);
+    axiosInstance
+      .put(`/information/${currentInfo.id}/update`, { ...currentInfo })
+      .then((res) => {
+        console.log(res);
+        toast.success(t('information.update.success'));
+        setOpenUpdate(false);
+        setIsRefetch(true);
+      })
+      .catch(() => {
+        toast.error(t('information.update.failed'));
+      });
   };
 
   const onClickCancel = () => {
@@ -147,7 +154,7 @@ export const InformationEditDialog = (props) => {
         <DialogActions>
           <Button onClick={onClickCancel}>{t('cancel')}</Button>
           <Button onClick={onClickSubmit} color="primary">
-            {t('submit')}
+            {t('update')}
           </Button>
         </DialogActions>
       </Dialog>

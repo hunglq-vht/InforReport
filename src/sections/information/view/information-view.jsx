@@ -10,6 +10,10 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Iconify from 'src/components/iconify';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { axiosInstance } from 'src/utils/axiosInstance';
@@ -19,6 +23,8 @@ import { InformationDialog } from '../InformationDialog';
 import {
   Box,
   Checkbox,
+  DialogContentText,
+  DialogTitle,
   IconButton,
   ListItemText,
   MenuItem,
@@ -33,6 +39,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { INFOR_TYPE_LIST } from 'src/utils/informationType';
 import { InformationEditDialog } from '../InformationEditDialog';
+import { toast } from 'react-toastify';
+import './styles.scss';
 
 export default function InformationPage() {
   const [informationList, setInformationList] = useState([]);
@@ -42,6 +50,8 @@ export default function InformationPage() {
   const [isRefetch, setIsRefetch] = useState(true);
   const [selectedInfo, setSelectedInfo] = useState({});
   const [openElement, setOpenElement] = useState(null);
+  const [isConfirmDelete, setIsConfirmDelete] = useState(false);
+  const [inforDeleteId, setInforDeleteId] = useState(null);
   const [filterValue, setFilterValue] = useState({
     from: null,
     to: null,
@@ -61,11 +71,25 @@ export default function InformationPage() {
     setIsOpenCreate(true);
   };
 
-  useEffect(() => {}, [filterValue]);
+  useEffect(() => {
+    const filterDto = {};
+    console.log(dayjs(filterValue.from).unix());
+    axiosInstance
+      .get('/information/filter', {
+        params: {
+          fromTime: dayjs(filterValue.from).startOf('day').unix() || 0,
+          toTime: dayjs(filterValue.to).endOf('day').unix() || 0,
+          types: filterValue.type.join(','),
+          status: filterValue.status.join(','),
+        },
+      })
+      .then((res) => {
+        setInformationList(res.data);
+      });
+  }, [filterValue]);
 
   const handleChangeMultiValue = (e) => {
     const { name, value } = e.target;
-    console.log(value);
     setFilterValue({
       ...filterValue,
       [name]: value,
@@ -86,8 +110,46 @@ export default function InformationPage() {
     if (selectedInformation) setSelectedInfo(selectedInformation);
   };
 
+  const handleClickDelete = (inforId) => {
+    setOpenElement(null);
+    setInforDeleteId(inforId);
+    setIsConfirmDelete(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsConfirmDelete(false);
+    setInforDeleteId(null);
+  };
+
+  const onConfirmDelete = () => {
+    axiosInstance
+      .delete(`/information/${inforDeleteId}`)
+      .then(() => {
+        toast.success(t('information.delete.success'));
+        handleCloseDeleteDialog();
+        setIsRefetch(true);
+      })
+      .catch(() => {
+        toast.error(t('information.delete.failed'));
+      });
+  };
+
   return (
     <>
+      <Dialog maxWidth="xs" fullWidth open={isConfirmDelete} onClose={handleCloseDeleteDialog}>
+        <DialogTitle sx={{ textAlign: 'center' }}>{t('confirm.delete.dialog')}</DialogTitle>
+        <DialogContentText sx={{ textAlign: 'center' }}>
+          {t('confirm.delete.information')}
+        </DialogContentText>
+        <DialogActions>
+          <Button type="reset" onClick={handleCloseDeleteDialog}>
+            {t('cancel')}
+          </Button>
+          <Button type="submit" color="primary" onClick={onConfirmDelete}>
+            {t('confirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
       {isOpenCreate && (
         <InformationDialog
           isOpenCreate={isOpenCreate}
@@ -103,7 +165,7 @@ export default function InformationPage() {
           information={selectedInfo}
         />
       )}
-      <Container>
+      <Container className="information-view">
         <Stack direction="row" alignItems={'center'} justifyContent={'space-between'} mb={5}>
           <Typography variant="h4">{t('information').toUpperCase()}</Typography>
           <Button
@@ -120,6 +182,8 @@ export default function InformationPage() {
             <Typography mr={2}>{t('information.fromTime')}</Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
+                sx={{ height: '40px' }}
+                className="common-input"
                 format="DD/MM/YYYY"
                 onChange={(newValue) => handleChangeDate('from', newValue)}
                 value={filterValue.from}
@@ -130,6 +194,8 @@ export default function InformationPage() {
             <Typography mr={2}>{t('information.toTime')}</Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
+                sx={{ height: '40px' }}
+                className="common-input"
                 format="DD/MM/YYYY"
                 onChange={(newValue) => handleChangeDate('to', newValue)}
                 value={filterValue.to}
@@ -220,6 +286,7 @@ export default function InformationPage() {
                         </TableCell>
                       </TableRow>
                       <Popover
+                        key={`popover_info_${index}`}
                         open={!!openElement}
                         anchorEl={openElement}
                         onClose={() => setOpenElement(null)}
@@ -232,7 +299,10 @@ export default function InformationPage() {
                           {t('edit')}
                         </MenuItem>
 
-                        <MenuItem onClick={() => setOpenElement(null)} sx={{ color: 'error.main' }}>
+                        <MenuItem
+                          onClick={() => handleClickDelete(currentInformation.id)}
+                          sx={{ color: 'error.main' }}
+                        >
                           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
                           {t('delete')}
                         </MenuItem>
